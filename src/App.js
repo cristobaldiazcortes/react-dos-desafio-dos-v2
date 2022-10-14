@@ -1,25 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./styles.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Navbar from "./components/Navbar";
+import Home from "./views/Home";
+import Favoritos from "./views/Favoritos";
+import NotFound from "./views/NotFound";
+import Contexto from "./context/Contexto";
 
-function App() {
+export default function App() {
+  const [fotos, setFotos] = useState([]);
+
+  const onLike = (id) => {
+    const resultadosLike = fotos.map((foto) => {
+      return foto.id === Number(id)
+        ? { ...foto, liked: !foto.liked }
+        : { ...foto };
+    });
+    setFotos(resultadosLike);
+  };
+
+  const likedFotos = fotos.filter((elem) => {
+    return elem.liked === true;
+  });
+
+  const endpoint = "/fotos.json";
+  const mostrarData = async () => {
+    const response = await fetch("http://localhost:3000/" + endpoint);
+    const data = await response.json();
+
+    setFotos(data.photos);
+    // console.log(data.photos);
+  };
+  useEffect(() => {
+    mostrarData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Contexto.Provider value={{ fotos, onLike, likedFotos }}>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/favoritos" element={<Favoritos />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </Contexto.Provider>
   );
 }
-
-export default App;
