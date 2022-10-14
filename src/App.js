@@ -26,7 +26,7 @@ export default function App() {
 
   const endpoint = "/fotos.json";
   const mostrarData = async () => {
-    const response = await fetch("http://localhost:3000/" + endpoint);
+    const response = await fetch("http://localhost:3000/{$endpoint}");
     const data = await response.json();
 
     setFotos(data.photos);
